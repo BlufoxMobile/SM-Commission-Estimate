@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SM Commission Estimator — Greater Chicago &amp; Big South</title>
+<meta name="description" content="Daily commission estimates for Blufox Mobile store managers in Greater Chicago and Big South. Estimates only — not a guarantee of pay.">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900&display=swap" rel="stylesheet">
+<script>
+/* Watchdog, armed BEFORE the parser-blocking CDN tag. If the spreadsheet
+   reader or the report never arrives, the wall must say so rather than
+   spin at a manager for the rest of the day. */
+window.__BOOT = setTimeout(function(){
+  var b = document.getElementById('board');
+  if(b && !b.querySelector('.card'))
+    b.innerHTML = '<div class="state-msg err"><span class="h">This page could not start</span>'
+      + '<p>The spreadsheet reader did not load within 30 seconds. That is almost always the network. '
+      + 'The page will keep trying on its own.</p></div>';
+}, 30000);
+</script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   BLUFOX · SM COMMISSION ESTIMATOR
+   The Cook County Cooks v3 "Cinema" design system, applied to a data page.
+   Ink-and-walnut grounds, brass fittings as the one accent, Edison amber for
+   caution, fresh herb for a gate cleared. Bodoni Moda drives its optical-size
+   axis by hand and is pinned BELOW the automatic value at every size, because
+   irradiation eats a Didone's hairlines on a dark ground. Archivo carries
+   every word that is actually read. Two families, four jobs.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  /* the room, in shadow and in light */
+  --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b;
+  --ink-800:#131a24; --ink-700:#1b2430; --ink-600:#26313f;
+  --steel:#3a4653;   /* blackened steel shelving — never a text colour */
+  --walnut:#4b3526;  /* the pass, the bar top */
+  --brick:#8a5238;   /* Chicago common brick */
+  /* the fittings — the one accent */
+  --brass-700:#8a6323; --brass-600:#a87c2e; --brass:#c8973f; --brass-400:#ddb463; --brass-300:#ebce93;
+  --amber:#f7b955;   /* Edison filament */
+  --sage:#a8c686;    /* fresh herb — means one thing: a gate is met */
+  --alert:#ff6f57;
+  --bone:#f4efe6; --bone-2:#dcd5c8; --bone-3:#b4aba0;
+
+  --bg:var(--ink-950); --fg:var(--bone); --fg-muted:var(--bone-2); --fg-dim:var(--bone-3);
+  --on-brass:#1a1206;
+  --surface:color-mix(in oklab,var(--ink-800) 90%,var(--walnut) 10%);
+  --surface-2:color-mix(in oklab,var(--ink-700) 90%,var(--walnut) 10%);
+  --glass:color-mix(in oklab,var(--ink-900) 74%,transparent);
+  --line:color-mix(in oklab,var(--brass) 30%,transparent);
+  --line-soft:color-mix(in oklab,var(--bone) 13%,transparent);
+  --line-hair:color-mix(in oklab,var(--bone) 8%,transparent);
+  --rule-brass:linear-gradient(90deg,color-mix(in oklab,var(--brass) 68%,transparent),color-mix(in oklab,var(--brass) 20%,transparent) 40%,transparent);
+  --shade:3 5 9;
+
+  /* ONE type scale. Every size on this page is one of these five. */
+  --t--2:clamp(.74rem,.70rem + .13vw,.90rem);
+  --t--1:clamp(.86rem,.81rem + .21vw,1.05rem);
+  --t-0 :clamp(.96rem,.90rem + .28vw,1.18rem);
+  --t-1 :clamp(1.08rem,1.00rem + .42vw,1.38rem);
+  --t-2 :clamp(1.45rem,1.15rem + 1.3vw,2.15rem);
+  --t-money:clamp(1.85rem,1.15rem + 2.5vw,3.1rem);
+  /* and TWO cap trackings */
+  --track-caps:.165em; --track-title:.3em;
+
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem; --sp-5:1.5rem;
+  --sp-6:2rem; --sp-7:2.75rem; --sp-8:3.75rem;
+  --gut:clamp(1rem,.5rem + 2.6vw,3.5rem);
+  --r-sm:3px; --r-md:6px; --r-lg:10px; --r-pill:999px;
+  --shadow-2:0 6px 14px -4px rgb(var(--shade)/.6), 0 2px 4px rgb(var(--shade)/.5);
+  --shadow-3:0 30px 80px -20px rgb(var(--shade)/.85), 0 4px 10px rgb(var(--shade)/.5);
+  --shadow-text:0 1px 0 rgb(var(--shade)/.55), 0 2px 22px rgb(var(--shade)/.8);
+  --ease-cine:cubic-bezier(.16,1,.3,1); --ease-out:cubic-bezier(.22,.61,.24,1);
+  --dur-2:190ms; --dur-3:320ms; --dur-4:520ms;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+  font-variation-settings:"wdth" 100;
+  font-size:var(--t-0); line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+/* the room behind everything: Edison warmth off the pass, brick to the left */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(105% 62% at 50% -14%, color-mix(in oklab,var(--amber) 15%,transparent) 0%, transparent 58%),
+    radial-gradient(78% 52% at 12% 4%,  color-mix(in oklab,var(--brick) 20%,transparent) 0%, transparent 62%),
+    radial-gradient(85% 58% at 92% 10%, color-mix(in oklab,var(--walnut) 34%,transparent) 0%, transparent 60%),
+    linear-gradient(180deg,var(--ink-850) 0%,var(--ink-950) 58%);
+}
+/* the grain of warm light on a dark wall */
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+  background-image:radial-gradient(circle at 1px 1px, color-mix(in oklab,var(--bone) 15%,transparent) 1px, transparent 0);
+  background-size:3px 3px; mix-blend-mode:soft-light;
+}
+h1,h2,h3,h4{margin:0; font-weight:500; letter-spacing:-.01em}
+.micro{
+  font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase;
+  font-variation-settings:"wdth" 88; font-weight:600; color:var(--fg-dim); line-height:1.35;
+}
+.rule{flex:1 1 auto; min-width:1.5rem; height:1px; background:var(--rule-brass)}
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+.wrap{max-width:1440px; margin:0 auto; padding-inline:var(--gut)}
+a{color:var(--brass-300)}
+:focus-visible{outline:2px solid var(--brass-400); outline-offset:3px; border-radius:2px}
+button{font:inherit; color:inherit}
+.visually-hidden{position:absolute!important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+
+/* ── MASTHEAD ─────────────────────────────────────────────────────────── */
+header.masthead{padding:clamp(1.5rem,3.4vw,2.75rem) 0 var(--sp-5); position:relative}
+header.masthead::after{content:""; position:absolute; left:var(--gut); right:var(--gut); bottom:0; height:1px; background:var(--rule-brass)}
+.eyebrow{display:flex; align-items:center; gap:var(--sp-3); flex-wrap:wrap; margin-bottom:var(--sp-3)}
+.eyebrow .micro{letter-spacing:var(--track-title)}
+h1.title{
+  font-family:"Bodoni Moda",Didot,serif; font-variation-settings:"opsz" 40;
+  font-weight:600; line-height:.96; letter-spacing:-.02em;
+  font-size:clamp(2.1rem,1.1rem + 5.2vw,4.4rem);
+  color:var(--bone); text-shadow:var(--shadow-text);
+}
+.subtitle{margin-top:var(--sp-3); color:var(--fg-muted); max-width:60ch; font-size:var(--t--1)}
+.statusrow{display:flex; flex-wrap:wrap; gap:var(--sp-2) var(--sp-3); margin-top:var(--sp-5); align-items:center}
+.pill{
+  display:inline-flex; align-items:center; gap:.45rem; padding:.42rem .8rem;
+  border:1px solid var(--line-soft); border-radius:var(--r-pill);
+  background:var(--glass); font-size:var(--t--2); letter-spacing:var(--track-caps);
+  text-transform:uppercase; font-variation-settings:"wdth" 90; font-weight:600;
+  color:var(--fg-muted); min-height:38px;
+}
+.pill .dot{width:6px; height:6px; border-radius:50%; background:var(--sage); box-shadow:0 0 8px var(--sage); flex:none}
+.pill.frozen{border-color:color-mix(in oklab,var(--sage) 45%,transparent); color:var(--sage)}
+.pill.live{border-color:color-mix(in oklab,var(--amber) 45%,transparent); color:var(--amber)}
+.pill.live .dot{background:var(--amber); box-shadow:0 0 8px var(--amber)}
+.pill.warn{border-color:color-mix(in oklab,var(--amber) 55%,transparent); color:var(--amber)}
+.pill.warn .dot{background:var(--amber); box-shadow:0 0 8px var(--amber)}
+.pill.stale{border-color:color-mix(in oklab,var(--alert) 60%,transparent); color:var(--alert)}
+.pill.stale .dot{background:var(--alert); box-shadow:0 0 8px var(--alert)}
+.pill.brass{border-color:var(--line); color:var(--brass-300)}
+button.pill{cursor:pointer; transition:border-color var(--dur-2), color var(--dur-2)}
+button.pill:hover,button.pill:focus-visible{border-color:var(--brass); color:var(--brass-300)}
+
+/* ── DISCLAIMER ───────────────────────────────────────────────────────── */
+.disclaimer{
+  margin:var(--sp-5) 0 0; padding:var(--sp-4) var(--sp-5);
+  border:1px solid color-mix(in oklab,var(--amber) 34%,transparent);
+  border-left:3px solid var(--amber); border-radius:var(--r-md);
+  background:linear-gradient(90deg,color-mix(in oklab,var(--amber) 10%,transparent),transparent 70%);
+  display:flex; gap:var(--sp-4); align-items:flex-start;
+}
+.disclaimer .mark{
+  font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 20; font-weight:700;
+  font-size:1.55rem; line-height:1; color:var(--amber); flex:none;
+  border:2px solid color-mix(in oklab,var(--amber) 60%,transparent); border-radius:2px;
+  width:2.1rem; height:2.1rem; display:grid; place-items:center;
+}
+.disclaimer > div{max-width:74ch}
+.disclaimer strong{
+  display:block; color:var(--amber); letter-spacing:var(--track-caps); text-transform:uppercase;
+  font-size:var(--t--2); font-weight:700; font-variation-settings:"wdth" 90; margin-bottom:.35rem;
+}
+.disclaimer p{margin:0; font-size:var(--t--1); color:var(--bone-2); line-height:1.55}
+
+/* ── STORE PICKER ────────────────────────────────────────────────────── */
+.pickwrap{margin-top:var(--sp-6)}
+.pickhead{display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-4); flex-wrap:wrap}
+.pickhead h2{font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 28; font-weight:600; font-size:var(--t-2); color:var(--bone)}
+.pickfind{margin-bottom:var(--sp-6)}
+.pickfind label.field{display:block; max-width:640px}
+.pickfind input[type="search"]{
+  width:100%; min-width:0; font-size:var(--t-0); padding:.85rem 1rem; min-height:56px;
+  border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface);
+}
+.pickfind input[type="search"]:focus{border-color:var(--brass)}
+.group{margin-bottom:var(--sp-6)}
+.group > .micro{display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-3); color:var(--brass-300); letter-spacing:var(--track-title)}
+.stores{display:grid; gap:var(--sp-2); grid-template-columns:repeat(auto-fill,minmax(min(232px,100%),1fr))}
+.storebtn{
+  display:flex; flex-direction:column; gap:.25rem; text-align:left; cursor:pointer;
+  padding:var(--sp-4); min-height:76px; border:1px solid var(--line-hair); border-left:2px solid var(--line-hair);
+  border-radius:var(--r-md); background:var(--surface); box-shadow:var(--shadow-2);
+  transition:border-color var(--dur-2) var(--ease-out), background var(--dur-2), transform var(--dur-2) var(--ease-out);
+}
+.storebtn:hover,.storebtn:focus-visible{border-color:var(--brass-600); border-left-color:var(--brass); background:var(--surface-2); transform:translateY(-1px)}
+.storebtn .n{font-size:var(--t-1); font-weight:600; color:var(--bone); line-height:1.2; overflow-wrap:break-word}
+.storebtn .m{font-size:var(--t--1); color:var(--fg-dim)}
+.storebtn.nomgr{opacity:.72} .storebtn.nomgr .m{color:var(--amber)}
+.emptyfind{padding:var(--sp-6); text-align:center; color:var(--fg-muted); border:1px dashed var(--line-soft); border-radius:var(--r-md); font-size:var(--t--1)}
+
+/* ── ONE STORE ────────────────────────────────────────────────────────── */
+.backrow{display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-4); flex-wrap:wrap}
+.sheet{border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); box-shadow:var(--shadow-3); overflow:hidden}
+.sheet.detractor{border-left:3px solid var(--alert)}
+.sheet.nodata{border-left:3px solid var(--amber)}
+.sheethead{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--sp-4);
+  align-items:center; padding:var(--sp-5); border-bottom:1px solid var(--line-hair);
+  background:linear-gradient(120deg,color-mix(in oklab,var(--brass) 8%,transparent),transparent 62%);
+}
+.sheethead .store{font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 28; font-weight:600; font-size:var(--t-2); line-height:1.05; color:var(--bone); display:block; overflow-wrap:break-word}
+.sheethead .sm{display:block; margin-top:.4rem; font-size:var(--t--1); color:var(--fg-dim)}
+.sheethead .sm b{color:var(--fg-muted); font-weight:500}
+.payout{text-align:right; min-width:10.5ch}
+.payout .amt{
+  font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 30; font-weight:680;
+  font-size:var(--t-money); line-height:1; color:var(--brass-300);
+  font-variant-numeric:tabular-nums lining-nums; display:block; white-space:nowrap;
+}
+.sheet.detractor .payout .amt{color:var(--alert)}
+.payout .cap{display:block; margin-top:.35rem; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; color:var(--fg-dim); font-weight:600}
+@media (max-width:640px){ .sheethead{grid-template-columns:1fr} .payout{text-align:left} }
+
+/* ── BOARD ────────────────────────────────────────────────────────────── */
+.payout{text-align:right; min-width:10.5ch}
+.payout .amt{
+  font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 30; font-weight:680;
+  font-size:var(--t-money); line-height:1; color:var(--brass-300);
+  font-variant-numeric:tabular-nums lining-nums; display:block; white-space:nowrap;
+}
+.card.detractor .payout .amt{color:var(--alert)}
+.payout .cap{display:block; margin-top:.35rem; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; color:var(--fg-dim); font-weight:600}
+
+/* ── DETAIL ───────────────────────────────────────────────────────────── */
+.detail{padding:var(--sp-5); animation:reveal var(--dur-4) var(--ease-cine) both}
+@keyframes reveal{from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:none}}
+.detailgrid{display:grid; gap:var(--sp-5) var(--sp-6); grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); grid-template-areas:"lines next" "whatif whatif"; align-items:start}
+.col-lines{grid-area:lines} .col-next{grid-area:next} .whatif{grid-area:whatif}
+.sechead{display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-3)}
+
+table.lines{width:100%; border-collapse:collapse; font-size:var(--t--1)}
+table.lines th{text-align:left; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; color:var(--fg-dim); font-weight:600; padding:0 0 .5rem; border-bottom:1px solid var(--line-hair)}
+table.lines th:last-child,table.lines td:last-child{text-align:right}
+table.lines td{padding:.6rem 0; border-bottom:1px solid var(--line-hair); vertical-align:top}
+table.lines tr:last-child td{border-bottom:0}
+.lbl{display:block; color:var(--bone-2)}
+.cond{display:block; font-size:var(--t--2); color:var(--fg-dim); margin-top:.2rem; line-height:1.45}
+.amtcell{font-variant-numeric:tabular-nums lining-nums; white-space:nowrap; color:var(--bone)}
+.amtcell.zero{color:var(--fg-dim)}
+.amtcell.neg{color:var(--alert)}
+.state{display:inline-block; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; font-weight:700; padding:.14rem .44rem; border-radius:2px; margin-left:.45rem; white-space:nowrap}
+.state.met{background:color-mix(in oklab,var(--sage) 16%,transparent); color:var(--sage)}
+.state.miss{background:color-mix(in oklab,var(--steel) 40%,transparent); color:var(--fg-dim)}
+.state.cut{background:color-mix(in oklab,var(--alert) 12%,transparent); color:var(--alert)}
+.state.nodata{background:color-mix(in oklab,var(--amber) 12%,transparent); color:var(--amber)}
+tr.sub td{border-bottom:2px solid var(--line-soft); padding-top:.8rem}
+tr.sub .lbl,tr.sub .amtcell{color:var(--bone); font-weight:600}
+tr.total td{padding-top:.9rem; border-bottom:0}
+tr.total .lbl{font-weight:700; color:var(--brass-300)}
+tr.total .amtcell{font-size:var(--t-1); font-weight:700; color:var(--brass-300)}
+.sheet.detractor tr.total .amtcell,.sheet.detractor tr.total .lbl{color:var(--alert)}
+tr.penalty .lbl,tr.penalty .amtcell{color:var(--alert)}
+
+.metrics{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--sp-2); margin-bottom:var(--sp-5)}
+@media (max-width:560px){ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.metric{padding:var(--sp-3); border:1px solid var(--line-hair); border-left:2px solid var(--line-hair); border-radius:var(--r-sm); background:var(--surface-2)}
+.metric .k{display:block; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; color:var(--fg-dim); font-weight:600; line-height:1.35}
+.metric .v{display:block; margin-top:.35rem; font-size:var(--t-0); font-variant-numeric:tabular-nums lining-nums; color:var(--bone)}
+.metric .src{display:block; margin-top:.2rem; font-size:var(--t--2); color:var(--fg-dim); opacity:.72}
+.metric.good{border-left-color:var(--sage)} .metric.good .v{color:var(--sage)}
+.metric.bad{border-left-color:var(--alert)} .metric.bad .v{color:var(--alert)}
+.metric.nodata{border-left-color:var(--amber)} .metric.nodata .v{color:var(--amber)}
+
+.col-next{display:grid; gap:var(--sp-3); align-content:start}
+.nextup{border:1px solid var(--line); border-radius:var(--r-md); background:linear-gradient(160deg,color-mix(in oklab,var(--brass) 11%,transparent),transparent 68%); padding:var(--sp-4)}
+.nextup.banked{border-color:color-mix(in oklab,var(--sage) 26%,transparent); background:linear-gradient(160deg,color-mix(in oklab,var(--sage) 7%,transparent),transparent 68%)}
+.nextup ul{list-style:none; margin:var(--sp-3) 0 0; padding:0; display:grid; gap:var(--sp-2)}
+.nextup li{display:flex; justify-content:space-between; gap:var(--sp-3); align-items:baseline; font-size:var(--t--1); padding-bottom:.55rem; border-bottom:1px dashed var(--line-hair)}
+.nextup li:last-child{border-bottom:0; padding-bottom:0}
+.nextup .gap{color:var(--bone-2)}
+.nextup .worth{color:var(--sage); font-variant-numeric:tabular-nums lining-nums; white-space:nowrap; font-weight:600}
+.nextup .none{font-size:var(--t--1); color:var(--sage); margin:var(--sp-3) 0 0}
+
+.whatif{border:1px solid var(--line-hair); border-radius:var(--r-md); background:var(--surface-2); padding:var(--sp-4)}
+.sliders{display:grid; gap:var(--sp-4) var(--sp-6); grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); margin-top:var(--sp-3)}
+.slider .top{display:flex; justify-content:space-between; align-items:baseline; gap:var(--sp-3); font-size:var(--t--1)}
+.slider .top .k{color:var(--fg-muted)}
+.slider .top .v{font-variant-numeric:tabular-nums lining-nums; color:var(--brass-300); font-weight:600}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:44px; background:transparent; cursor:pointer; margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px; border-radius:2px; background:linear-gradient(90deg,var(--brass-600) 0 var(--fill,50%),var(--steel) var(--fill,50%) 100%)}
+input[type=range]::-moz-range-track{height:4px; border-radius:2px; background:linear-gradient(90deg,var(--brass-600) 0 var(--fill,50%),var(--steel) var(--fill,50%) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:22px; margin-top:-9px; border-radius:2px; background:linear-gradient(180deg,var(--brass-300),var(--brass-600)); border:1px solid var(--ink-950)}
+input[type=range]::-moz-range-thumb{width:14px; height:20px; border-radius:2px; background:linear-gradient(180deg,var(--brass-300),var(--brass-600)); border:1px solid var(--ink-950)}
+.whatif .out{display:grid; grid-template-columns:auto 1fr auto; gap:var(--sp-2) var(--sp-4); align-items:center; margin-top:var(--sp-4); padding-top:var(--sp-3); border-top:1px solid var(--line-soft)}
+.whatif .out .k{font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; color:var(--fg-dim); font-weight:600}
+.whatif .out .figure{display:flex; flex-direction:column}
+.whatif .out .v{font-size:var(--t-1); font-weight:700; color:var(--brass-300); font-variant-numeric:tabular-nums lining-nums}
+.whatif .delta{font-size:var(--t--2); font-variant-numeric:tabular-nums lining-nums; margin-top:.15rem}
+.delta.up{color:var(--sage)} .delta.down{color:var(--alert)} .delta.flat{color:var(--fg-dim)}
+.btn{display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; border:1px solid var(--line-soft); background:transparent; border-radius:var(--r-pill); padding:.4rem .9rem; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; font-weight:600; color:var(--fg-muted); min-height:40px; transition:border-color var(--dur-2), color var(--dur-2)}
+.btn:hover,.btn:focus-visible{border-color:var(--brass); color:var(--brass-300)}
+
+/* ── RULES + FOOTER ───────────────────────────────────────────────────── */
+details.rules{margin:var(--sp-6) 0; border:1px solid var(--line-hair); border-radius:var(--r-md); background:var(--surface)}
+details.rules > summary{cursor:pointer; padding:var(--sp-4) var(--sp-5); list-style:none; display:flex; justify-content:space-between; align-items:center; gap:var(--sp-3); min-height:44px}
+details.rules > summary::-webkit-details-marker{display:none}
+details.rules > summary::after{content:"+"; font-family:"Bodoni Moda",serif; font-size:1.35rem; color:var(--brass); line-height:1}
+details.rules[open] > summary::after{content:"\2013"}
+.rulesbody{padding:0 var(--sp-5) var(--sp-5); display:grid; gap:var(--sp-4); grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))}
+.rulecard{border:1px solid var(--line-hair); border-radius:var(--r-sm); padding:var(--sp-4); background:var(--surface-2)}
+.rulecard h4{margin:0 0 var(--sp-2); font-size:var(--t--1); color:var(--brass-300); font-weight:600}
+.rulecard table{width:100%; border-collapse:collapse; font-size:var(--t--1)}
+.rulecard td{padding:.34rem 0; border-bottom:1px solid var(--line-hair); color:var(--bone-2)}
+.rulecard tr:last-child td{border-bottom:0}
+.rulecard td:last-child{text-align:right; font-variant-numeric:tabular-nums lining-nums; color:var(--bone); white-space:nowrap}
+.rulecard p{margin:.6rem 0 0; font-size:var(--t--2); color:var(--fg-dim); line-height:1.6}
+footer.foot{border-top:1px solid var(--line-hair); padding:var(--sp-6) 0 var(--sp-8); color:var(--fg-dim); font-size:var(--t--1)}
+footer.foot p{margin:0 0 var(--sp-2); max-width:78ch; line-height:1.65}
+footer.foot strong{color:var(--amber)}
+
+/* ── STATES ───────────────────────────────────────────────────────────── */
+.state-msg{padding:var(--sp-8) var(--sp-5); text-align:center; border:1px dashed var(--line-soft); border-radius:var(--r-md); background:var(--glass)}
+.state-msg .h{font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 24; font-size:var(--t-1); color:var(--bone); display:block; margin-bottom:var(--sp-2)}
+.state-msg p{margin:0 auto var(--sp-2); max-width:56ch; color:var(--fg-muted); font-size:var(--t--1)}
+.state-msg.err{border-color:color-mix(in oklab,var(--alert) 45%,transparent)}
+.state-msg.err .h{color:var(--alert)}
+.spin{width:34px; height:34px; margin:0 auto var(--sp-4); border:2px solid var(--ink-600); border-top-color:var(--brass); border-radius:50%; animation:spin 900ms linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+@media (max-width:1080px){ .detailgrid{grid-template-columns:1fr; grid-template-areas:"lines" "next" "whatif"} }
+@media (max-width:820px){
+  .detail{padding:var(--sp-4)}
+  .spacer{display:none}
+  label.field{flex:1 1 100%; display:grid; grid-template-columns:5.5rem 1fr; align-items:center}
+  select{width:100%}
+  input[type="search"]{flex:1 1 100%; min-width:0; width:100%}
+  .seg{width:100%; justify-content:center}
+}
+@media (max-width:520px){
+  .sheethead{padding:var(--sp-4)}
+  .disclaimer{flex-direction:column; gap:var(--sp-2)}
+  .seg button,.btn{min-height:44px}
+}
+@media (max-width:400px){ .pill{white-space:normal; text-align:center} }
+/* the wall: strip the chrome so store cards are what you see from ten feet */
+@media (min-width:1600px){
+  header.masthead{padding:var(--sp-5) 0 var(--sp-4)}
+  h1.title{font-size:2.9rem}
+  .subtitle{display:none}
+  .disclaimer{padding:var(--sp-3) var(--sp-4)}
+  .disclaimer p{font-size:var(--t--2)}
+  :root{--t-money:3.2rem; --t-1:1.5rem}
+}
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important} }
+@media (prefers-contrast:more){ :root{--line-hair:color-mix(in oklab,var(--bone) 22%,transparent); --fg-dim:var(--bone-2)} }
+@media (forced-colors:active){ .sheet,.storebtn,.metric{border:1px solid CanvasText} .state{border:1px solid CanvasText} }
+@media print{
+  body::before,body::after{display:none}
+  body{background:#fff; color:#000}
+  .pickwrap,.whatif,.backrow,details.rules,.statusrow{display:none}
+  .detail{display:block!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span class="micro">Blufox Mobile</span><span class="rule"></span>
+      <span class="micro">Greater Chicago &middot; Big South</span>
+    </div>
+    <h1 class="title">Store Manager<br>Commission Estimator</h1>
+    <p class="subtitle">Find your store to see your own estimate. Rebuilt automatically from the daily sales report the moment it is uploaded &mdash; every figure is a projection of where the month lands if today&rsquo;s pace holds.</p>
+    <div class="statusrow" id="statusrow">
+      <span class="pill" id="pill-report"><span class="dot"></span><span id="report-date">Loading report&hellip;</span></span>
+      <span class="pill" id="pill-period"></span>
+      <button class="pill brass" id="btn-refresh" type="button">Refresh</button>
+    </div>
+  </header>
+
+  <div class="disclaimer" role="note">
+    <span class="mark" aria-hidden="true">!</span>
+    <div>
+      <strong>Estimate only &mdash; not a guarantee of pay</strong>
+      <p>These numbers are a planning tool built from a mid-month sales report. They are not payroll, they are not approved, and they are not a promise. Actual commission is determined by finalized month-end results, chargebacks and fall-off, and official Blufox payroll calculations &mdash; which will differ from what you see here. Never make a financial decision on this page.</p>
+    </div>
+  </div>
+
+  <div id="notices"></div>
+  <p class="visually-hidden" id="livestatus" role="status" aria-live="polite"></p>
+
+  <main id="board" aria-busy="true">
+    <div class="state-msg"><div class="spin"></div><span class="h">Reading today&rsquo;s sales report</span><p>Pulling <code>Sales&nbsp;Report.xlsx</code> from the Daily Sales Report repository&hellip;</p></div>
+  </main>
+
+  <details class="rules">
+    <summary><span class="micro" style="color:var(--brass-300)">How the estimate is built</span></summary>
+    <div class="rulesbody" id="rulesbody"></div>
+  </details>
+
+  <footer class="foot">
+    <p><strong>This is an estimate.</strong> It is generated automatically from the daily sales report and carries every limitation that report has. Figures move daily and the final number will be different.</p>
+    <p>Scope: the <span id="foot-count">26</span> Greater Chicago and Big South stores only. Sourced from <code>BlufoxMobile/Daily-Sales-Report</code> &rarr; <code>data/Sales&nbsp;Report.xlsx</code>. Questions about your commission go to your DM or the finance team &mdash; not to this page.</p>
+    <p id="foot-build"></p>
+  </footer>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   ENGINE
+   Ported cell-for-cell from "SM Commission Estimates.xlsx" → sheet
+   "SM Commission Calculator" row 2, with the four approved changes:
+     1  Excess GP (workbook col H) reads sales-report col Q and floors at $0.
+     2  Detractor cut threshold 60% → 68%.
+     3  Flat NPS bonus is numeric $200 (>75%) / $400 (>80%), exclusive —
+        replacing the text "$300", which SUM() silently skipped, so the
+        workbook has never actually paid it.
+     4  The tiered bonus (workbook col BW) reads ELITE mobile CR, not MCR.
+   Plus the fiscal freeze: from the 22nd the fiscal metrics read their
+   "Last Month Fiscal" twins, because the fiscal month runs the 22nd → 21st.
+   The freeze pivots on the REPORT's own date, never the viewer's clock — a
+   wall screen and a phone in another timezone must agree.
+   ══════════════════════════════════════════════════════════════════════════ */
+'use strict';
+
+const CFG = {
+  OWNER:'BlufoxMobile', REPO:'Daily-Sales-Report', PATH:'data/Sales Report.xlsx',
+  SHEET:'Store Rank', HEADER_ROW:6, REGIONS:['Greater Chicago','Big South'],
+  RATE_GP:0.025, RATE_EXCESS:0.08, RATE_CR:0.0075, RATE_NPS:0.0035,
+  CR_GOAL:0.09, NPS_PCT_GATE:0.70, NPS_DETRACTOR:0.68,
+  NPS_BONUS:[[0.80,400],[0.75,200]],                            // exclusive, highest first
+  ELITE_TIERS:[[0.05,100],[0.06,300],[0.07,200],[0.08,250]],    // cumulative
+  FREEZE_DAY:22, TIMEOUT_MS:15000, REFRESH_MS:15*60*1000, STALE_HOURS:30, IDLE_MS:4*60*1000
+};
+
+/* Columns are resolved by HEADER TEXT, not by position. If someone inserts a
+   column into the daily report, a fixed index map would keep computing and
+   quietly pay the wrong number; matching on the header makes that a loud
+   failure instead. `at` is the position we expect, used only to disambiguate. */
+const FIELDS = {
+  region:{at:1,  h:'region'},          store:{at:2,  h:'store'},
+  dm:    {at:5,  h:'dm'},              sm:   {at:6,  h:'sm'},
+  gpTrend:{at:12, h:'gp $ est net trend', money:1},
+  varTarget:{at:16, h:'var target gp $', money:1, signed:1},
+  mcr:  {at:21, h:'mobile close rate',                    rate:1},
+  mcrLM:{at:22, h:'last month fiscal mobile close rate',  rate:1},
+  fcr:  {at:23, h:'fiscal close rate',                    rate:1},
+  fcrLM:{at:24, h:'last month fiscal close rate',         rate:1},
+  elite:{at:25, h:'elite mobile cr',                      rate:1},
+  eliteLM:{at:26, h:'last month fiscal elite mobile cr',  rate:1},
+  nps:  {at:90, h:'fiscal nps',                           rate:1},
+  npsLM:{at:91, h:'last month fiscal nps',                rate:1}
+};
+const norm = s => String(s == null ? '' : s)
+  .replace(/\s+/g,' ').trim().toLowerCase()
+  .replace(/\s*\d+\s*pts?$/,'').trim();          // strip the "25 Pts" scoring suffix
+
+function resolveColumns(headerRow){
+  const cells = (headerRow || []).map(norm), IX = {}, missing = [];
+  for(const [key, def] of Object.entries(FIELDS)){
+    const hits = [];
+    for(let i = 0; i < cells.length; i++) if(cells[i] === def.h) hits.push(i);
+    if(hits.length === 1)                     IX[key] = hits[0];
+    else if(hits.includes(def.at))            IX[key] = def.at;   // duplicated header, trust position
+    else if(hits.length > 1)                  IX[key] = hits[0];
+    else missing.push(`"${def.h}"`);
+  }
+  if(missing.length) throw new Error(
+    `The sales report's columns have moved. Could not find ${missing.slice(0,3).join(', ')}` +
+    (missing.length > 3 ? ` and ${missing.length - 3} more` : '') +
+    ` in the "${CFG.SHEET}" header row. The estimator was not updated for this layout, so it has stopped rather than show wrong figures.`);
+  return IX;
+}
+
+/** Excel ROUNDUP(x, 2) — away from zero, epsilon-guarded against float noise. */
+function roundUp(x, d){
+  d = d == null ? 2 : d;
+  if(!x || !isFinite(x)) return 0;
+  const f = Math.pow(10, d);
+  return Math.sign(x) * Math.ceil(Math.abs(x) * f - 1e-9) / f;
+}
+const isNum = v => typeof v === 'number' && isFinite(v);
+const num   = v => isNum(v) ? v : 0;
+
+/* A blank cell is NOT a zero. A missing NPS must never brand a manager a
+   detractor on a wall-mounted screen, so unknown metrics are carried as
+   `null` and simply pay nothing, flagged as unreported. */
+function readRate(v){ return (isNum(v) && v >= 0 && v <= 1) ? v : null; }
+
+function estimate(inp){
+  const gp     = num(inp.gpTrend);
+  const excess = Math.max(0, num(inp.varTarget));                       // change 1
+  const fcr = inp.fcr, elite = inp.elite, nps = inp.nps;                // null = unreported
+
+  const lines = {
+    gp:      roundUp(gp * CFG.RATE_GP),
+    excess:  roundUp(excess * CFG.RATE_EXCESS),
+    cr:      (fcr != null && fcr > CFG.CR_GOAL)      ? roundUp(gp * CFG.RATE_CR)  : 0,
+    npsPct:  (nps != null && nps > CFG.NPS_PCT_GATE) ? roundUp(gp * CFG.RATE_NPS) : 0,
+    npsFlat: 0, elite: 0
+  };
+  if(nps != null)   for(const [g, a] of CFG.NPS_BONUS){ if(nps > g){ lines.npsFlat = a; break; } }   // change 3
+  if(elite != null) for(const [g, a] of CFG.ELITE_TIERS){ if(elite > g) lines.elite += a; }          // change 4
+
+  let before = lines.gp + lines.excess + lines.cr + lines.npsPct + lines.npsFlat + lines.elite;
+  /* An estimate is never a bill. A negative GP trend zeroes the estimate
+     rather than showing a manager a negative paycheck. The raw figure is kept
+     so the breakdown can show the write-back and still add up on screen. */
+  const rawBefore = before, floored = before < 0; if(floored) before = 0;
+
+  const detractor = (nps != null && nps < CFG.NPS_DETRACTOR);           // change 2
+  const penalty   = detractor ? -(before / 2) : 0;
+  return { lines, before, rawBefore, penalty, detractor, floored, after: before + penalty };
+}
+
+/* Worth is measured by RE-RUNNING the estimate with the metric nudged over
+   its gate and diffing. Hand-written figures drift out of step with the rules
+   — this cannot: it always quotes exactly what crossing that line pays,
+   including the 50% detractor cut and any lower gate crossed on the way. */
+const EPS = 0.0001;
+function opportunities(s){
+  const base = s.after, out = [];
+  const pct  = v => (v * 100).toFixed(1) + '%';
+  const test = over => estimate(Object.assign({gpTrend:s.gpTrend, varTarget:s.varTarget,
+                                fcr:s.fcr, elite:s.elite, nps:s.nps}, over)).after - base;
+
+  if(s.nps != null){
+    if(s.detractor)
+      out.push({ gap:`Lift NPS to ${pct(CFG.NPS_DETRACTOR)} (now ${pct(s.nps)}) to clear the detractor cut`,
+                 worth: test({nps: CFG.NPS_DETRACTOR}) });
+    else {
+      const gate = [CFG.NPS_PCT_GATE, 0.75, 0.80].find(g => s.nps <= g);
+      if(gate != null) out.push({ gap:`NPS over ${pct(gate)} (now ${pct(s.nps)})`, worth: test({nps: gate + EPS}) });
+    }
+  }
+  if(s.fcr != null && s.fcr <= CFG.CR_GOAL)
+    out.push({ gap:`Fiscal close rate over ${pct(CFG.CR_GOAL)} (now ${pct(s.fcr)})`, worth: test({fcr: CFG.CR_GOAL + EPS}) });
+  if(s.elite != null){
+    const t = CFG.ELITE_TIERS.find(([g]) => s.elite <= g);
+    if(t) out.push({ gap:`Elite mobile CR over ${pct(t[0])} (now ${pct(s.elite)})`, worth: test({elite: t[0] + EPS}) });
+  }
+  if(num(s.varTarget) <= 0)
+    out.push({ gap:`Reach the GP goal &mdash; ${money0(Math.abs(num(s.varTarget)))} short today`, worth:null });
+
+  return out.filter(o => o.worth === null || o.worth > 0.005).sort((a,b) => (b.worth || 0) - (a.worth || 0));
+}
+
+/* ── FORMATTING ───────────────────────────────────────────────────────── */
+const MINUS = '−';
+const money = n => (n < 0 ? MINUS : '') + '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+const money0 = n => (n < 0 ? MINUS : '') + '$' + Math.abs(Math.round(n)).toLocaleString('en-US');
+const pct1 = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+const esc  = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ── STATE ────────────────────────────────────────────────────────────── */
+const STATE = { rows:[], selected:null, q:'', frozen:null, reportDate:null,
+                pinFailed:false, notices:[] };
+
+function isFrozen(d){ return d.getDate() >= CFG.FREEZE_DAY; }
+
+async function fetchWithTimeout(url, opts){
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), CFG.TIMEOUT_MS);
+  try { return await fetch(url, Object.assign({cache:'no-store', signal:ctl.signal}, opts || {})); }
+  finally { clearTimeout(t); }
+}
+
+/** Resolve the file at its NEWEST commit so the raw CDN cannot serve yesterday's copy. */
+async function pinnedUrl(){
+  STATE.pinFailed = false;
+  try{
+    const api = `https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/commits?path=${encodeURIComponent(CFG.PATH)}&per_page=1&_=${Date.now()}`;
+    const r = await fetchWithTimeout(api, {headers:{Accept:'application/vnd.github+json'}});
+    if(r.ok){
+      const j = await r.json();
+      if(j && j[0] && j[0].sha){
+        const iso = j[0].commit && j[0].commit.committer && j[0].commit.committer.date;
+        if(iso) STATE.reportDate = new Date(iso);
+        return `https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/${j[0].sha}/${CFG.PATH.split('/').map(encodeURIComponent).join('/')}`;
+      }
+    }
+    STATE.pinFailed = true;   // usually the unauthenticated 60/hour rate limit
+  }catch(e){ STATE.pinFailed = true; console.warn('pin lookup failed', e); }
+  return `https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/main/${CFG.PATH.split('/').map(encodeURIComponent).join('/')}?t=${Date.now()}`;
+}
+
+async function load(){
+  const board = document.getElementById('board');
+  board.setAttribute('aria-busy','true');
+  STATE.notices = [];
+  try{
+    if(typeof XLSX === 'undefined') throw new Error('The spreadsheet reader could not be loaded. That is almost always the network — check the connection and reload.');
+    const url = await pinnedUrl();
+    let res;
+    try { res = await fetchWithTimeout(url); }
+    catch(e){ throw new Error(e && e.name === 'AbortError'
+      ? `The sales report did not respond within ${CFG.TIMEOUT_MS/1000} seconds. The page will keep trying.`
+      : 'The sales report could not be reached. Check the network connection.'); }
+    if(!res.ok) throw new Error(`The sales report could not be downloaded (HTTP ${res.status}).`);
+
+    if(!STATE.reportDate){
+      const lm = res.headers.get('last-modified');
+      if(lm && !isNaN(Date.parse(lm))) STATE.reportDate = new Date(lm);
+    }
+    /* The freeze follows the report, not the device. Falls back to the local
+       clock only when the report's own date is unknowable. */
+    STATE.frozen = isFrozen(STATE.reportDate || new Date());
+
+    let wb;
+    try { wb = XLSX.read(await res.arrayBuffer(), {type:'array'}); }
+    catch(e){ throw new Error('The report file is corrupt or incomplete. Try uploading it again.'); }
+    const ws = wb.Sheets[CFG.SHEET];
+    if(!ws) throw new Error(`The report has no "${CFG.SHEET}" tab. Its layout may have changed.`);
+    const grid = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, blankrows:true});
+    const IX = resolveColumns(grid[CFG.HEADER_ROW]);
+
+    const rows = []; let skipped = 0, flagged = 0;
+    for(let i = CFG.HEADER_ROW + 1; i < grid.length; i++){
+      const r = grid[i]; if(!r) continue;
+      if(!CFG.REGIONS.includes(String(r[IX.region] == null ? '' : r[IX.region]).trim())) continue;
+      if(!r[IX.store]){ skipped++; continue; }
+      const fz = STATE.frozen;
+      const rec = {
+        store:String(r[IX.store]).trim(), region:String(r[IX.region]).trim(),
+        sm:r[IX.sm] || 'No Mgr', dm:r[IX.dm] || '—',
+        gpTrend:num(r[IX.gpTrend]), varTarget:num(r[IX.varTarget]),
+        mcr:  readRate(r[fz ? IX.mcrLM   : IX.mcr]),
+        fcr:  readRate(r[fz ? IX.fcrLM   : IX.fcr]),
+        elite:readRate(r[fz ? IX.eliteLM : IX.elite]),
+        nps:  readRate(r[fz ? IX.npsLM   : IX.nps])
+      };
+      rec.nodata = (rec.nps == null || rec.fcr == null || rec.elite == null);
+      if(rec.nodata) flagged++;
+      Object.assign(rec, estimate(rec));
+      rec.opps   = opportunities(rec);
+      rec.upside = rec.opps.reduce((a,o) => a + (o.worth || 0), 0);
+      rows.push(rec);
+    }
+    if(!rows.length) throw new Error('No Greater Chicago or Big South stores were found in the report.');
+    if(skipped) STATE.notices.push(`${skipped} row${skipped>1?'s':''} in the report had no store name and ${skipped>1?'were':'was'} skipped.`);
+    if(flagged) STATE.notices.push(`${flagged} store${flagged>1?'s are':' is'} missing a close rate or NPS figure. Those metrics pay nothing here and are marked “not reported” — they are not being counted as zero.`);
+
+    STATE.rows = rows;
+    clearTimeout(window.__BOOT);
+    renderStatus(); renderRules(); render();
+    board.setAttribute('aria-busy','false');
+  }catch(err){
+    console.error(err);
+    clearTimeout(window.__BOOT);
+    board.setAttribute('aria-busy','false');
+    board.innerHTML = `<div class="state-msg err"><span class="h">Could not build today&rsquo;s estimates</span><p>${esc(err.message)}</p><p><button class="btn" id="btn-retry" type="button">Try again</button></p></div>`;
+  }
+}
+
+/* ── ONE STORE'S BREAKDOWN ────────────────────────────────────────────── */
+function detailHtml(r, key){
+  const src = STATE.frozen ? {mcr:'col W',fcr:'col Y',elite:'col AA',nps:'col CN'}
+                           : {mcr:'col V',fcr:'col X',elite:'col Z',nps:'col CM'};
+  /* Zero shows as an em-dash; a NEGATIVE must show as a negative, or the
+     visible lines stop adding up to the subtotal beneath them. */
+  const cell = v => v === 0 ? `<td class="amtcell zero">—</td>`
+                            : `<td class="amtcell${v < 0 ? ' neg' : ''}">${money(v)}</td>`;
+  const line = (lbl, cond, v, tag) => `<tr><td><span class="lbl">${lbl}${tag||''}</span><span class="cond">${cond}</span></td>${cell(v)}</tr>`;
+  const met = ok => `<span class="state ${ok?'met':'miss'}">${ok?'met':'not yet'}</span>`;
+  const nod = `<span class="state nodata">not reported</span>`;
+  const under = num(r.varTarget) < 0;
+
+  const metrics = [
+    ['Net GP trend', money0(r.gpTrend), 'col M', r.gpTrend < 0 ? 'bad' : ''],
+    [under ? 'Under GP goal' : 'Over GP goal', money0(r.varTarget), 'col Q', under ? 'bad' : 'good'],
+    ['Elite mobile CR', pct1(r.elite), src.elite + ' &middot; this is what pays', r.elite == null ? 'nodata' : (r.elite > 0.05 ? 'good' : 'bad')],
+    ['Mobile CR', pct1(r.mcr), src.mcr + ' &middot; reference only', r.mcr == null ? 'nodata' : ''],
+    ['Fiscal close rate', pct1(r.fcr), src.fcr, r.fcr == null ? 'nodata' : (r.fcr > CFG.CR_GOAL ? 'good' : 'bad')],
+    ['NPS', pct1(r.nps), src.nps, r.nps == null ? 'nodata' : (r.nps < CFG.NPS_DETRACTOR ? 'bad' : (r.nps > 0.75 ? 'good' : ''))]
+  ].map(([k,v,s,c]) => `<div class="metric ${c}"><span class="k">${k}</span><span class="v tnum">${v}</span><span class="src">${s}</span></div>`).join('');
+
+  const opps = r.opps.length
+    ? '<ul>' + r.opps.slice(0,4).map(o => `<li><span class="gap">${o.gap}</span>${
+        o.worth ? `<span class="worth">+${money0(o.worth)}</span>`
+                : `<span class="worth" style="color:var(--fg-dim)">then 8% of the overage</span>`}</li>`).join('') + '</ul>'
+    : `<p class="none">Every threshold is already cleared. Push net GP — it pays 2.5% with no ceiling.</p>`;
+
+  /* The mirror of the list above: what this store has already banked. Together
+     they answer the only two questions a manager actually has. */
+  const earned = [
+    ['Net profit commission', r.lines.gp],
+    [under ? null : 'Over-goal bonus', r.lines.excess],
+    [r.fcr != null && r.fcr > CFG.CR_GOAL ? 'Close rate over 9.0%' : null, r.lines.cr],
+    [r.nps != null && r.nps > CFG.NPS_PCT_GATE ? 'NPS over 70.0%' : null, r.lines.npsPct],
+    [r.lines.npsFlat ? `NPS over ${r.lines.npsFlat === 400 ? '80.0' : '75.0'}%` : null, r.lines.npsFlat],
+    [r.lines.elite ? 'Elite mobile CR tiers' : null, r.lines.elite]
+  ].filter(([l,v]) => l && v > 0);
+  const banked = earned.length
+    ? `<div class="nextup banked">
+         <div class="sechead" style="margin-bottom:0"><span class="micro" style="color:var(--sage)">Already earned</span></div>
+         <ul>${earned.map(([l,v]) => `<li><span class="gap">${l}</span><span class="worth">${money0(v)}</span></li>`).join('')}
+         ${r.detractor ? `<li><span class="gap" style="color:var(--alert)">Detractor penalty on the total</span><span class="worth" style="color:var(--alert)">${money0(r.penalty)}</span></li>` : ''}</ul>
+       </div>` : '';
+
+  const sn = esc(r.store);
+  return `<div class="detail">
+    <div class="detailgrid">
+      <div class="col-lines">
+        <div class="sechead"><span class="micro">Where the money comes from</span><span class="rule"></span></div>
+        <div class="metrics">${metrics}</div>
+        <table class="lines">
+          <thead><tr><th scope="col">Component</th><th scope="col">Estimate</th></tr></thead>
+          <tbody>
+            ${line('Net profit commission', '2.5% of ' + money0(r.gpTrend) + ' net GP trend', r.lines.gp)}
+            ${line('Over-goal bonus', under
+                ? money0(Math.abs(r.varTarget)) + ' below the GP goal — pays nothing until positive'
+                : '8% of ' + money0(r.varTarget) + ' above the GP goal', r.lines.excess, met(!under))}
+            ${line('Close rate bonus', r.fcr == null ? 'Fiscal close rate was not reported'
+                : '0.75% of net GP if fiscal close rate beats 9.0% — now ' + pct1(r.fcr),
+                r.lines.cr, r.fcr == null ? nod : met(r.fcr > CFG.CR_GOAL))}
+            ${line('NPS percentage bonus', r.nps == null ? 'NPS was not reported'
+                : '0.35% of net GP if NPS beats 70.0% — now ' + pct1(r.nps),
+                r.lines.npsPct, r.nps == null ? nod : met(r.nps > CFG.NPS_PCT_GATE))}
+            ${line('NPS flat bonus', r.nps == null ? 'NPS was not reported'
+                : '$200 over 75.0%, $400 over 80.0% — now ' + pct1(r.nps),
+                r.lines.npsFlat, r.nps == null ? nod : met(r.lines.npsFlat > 0))}
+            ${line('Elite mobile CR bonus', r.elite == null ? 'Elite mobile CR was not reported'
+                : 'Stacks +$100 / +$300 / +$200 / +$250 past 5 / 6 / 7 / 8% — now ' + pct1(r.elite),
+                r.lines.elite, r.elite == null ? nod : met(r.lines.elite > 0))}
+            ${r.floored ? `<tr><td><span class="lbl">Floor adjustment<span class="state nodata">held at $0</span></span><span class="cond">Net GP trend is negative. Commission is never negative, so the shortfall is written back off rather than billed to you.</span></td><td class="amtcell">${money(r.rawBefore ? -r.rawBefore : 0)}</td></tr>` : ''}
+            <tr class="sub"><td><span class="lbl">Subtotal before NPS penalty</span></td><td class="amtcell">${money(r.before)}</td></tr>
+            ${r.detractor
+              ? `<tr class="penalty"><td><span class="lbl">Detractor penalty<span class="state cut">${MINUS}50%</span></span><span class="cond">NPS is ${pct1(r.nps)}, under the 68.0% floor — half of all commission is lost</span></td><td class="amtcell neg">${money(r.penalty)}</td></tr>`
+              : `<tr><td><span class="lbl">Detractor penalty${r.nps == null ? nod : '<span class="state met">clear</span>'}</span><span class="cond">${r.nps == null ? 'NPS was not reported, so no penalty is applied' : 'NPS is ' + pct1(r.nps) + ', clear of the 68.0% floor'}</span></td><td class="amtcell zero">—</td></tr>`}
+            <tr class="total"><td><span class="lbl">Estimated commission</span></td><td class="amtcell">${money(r.after)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-next">
+        <div class="nextup">
+          <div class="sechead" style="margin-bottom:0"><span class="micro" style="color:var(--brass-300)">Closest money on the table</span></div>
+          ${opps}
+        </div>
+        ${banked}
+      </div>
+      <div class="whatif" data-store="${key}">
+        <div class="sechead"><span class="micro">What if — move the dials</span><span class="rule"></span></div>
+        <div class="sliders">
+          ${slider(key,sn,'gpTrend','Net GP trend',   Math.min(0, r.gpTrend), Math.max(150000, r.gpTrend*1.6), 1, r.gpTrend)}
+          ${slider(key,sn,'varTarget','Over / under GP goal', Math.min(-30000, r.varTarget*1.5), Math.max(40000, r.varTarget*1.8), 1, r.varTarget)}
+          ${slider(key,sn,'elite','Elite mobile CR',  0, Math.max(0.14, (r.elite||0)*1.4), 0.0001, r.elite)}
+          ${slider(key,sn,'fcr','Fiscal close rate',  0, Math.max(0.26, (r.fcr||0)*1.4),   0.0001, r.fcr)}
+          ${slider(key,sn,'nps','NPS',                0, 1, 0.0001, r.nps)}
+        </div>
+        <div class="out">
+          <span class="k">Would pay</span>
+          <span class="figure"><span class="v tnum" data-out="${key}">${money(r.after)}</span>
+            <span class="delta flat" data-delta="${key}">no change</span></span>
+          <button class="btn" type="button" data-reset="${key}" aria-label="Reset ${sn} to today's figures">Reset to today</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* The range must always straddle the real value: a slider whose min clamps the
+   true figure would silently rewrite it the moment any other dial moved. */
+function slider(key, storeName, k, label, min, max, step, val){
+  const isPct = max <= 1.01, v = val == null ? 0 : val;
+  const lo = Math.min(min, v), hi = Math.max(max, v);
+  const txt = isPct ? pct1(val) : money0(v);
+  return `<div class="slider">
+    <div class="top"><label class="k" for="s${key}-${k}">${label}</label><span class="v" data-lbl="${key}-${k}">${txt}</span></div>
+    <input id="s${key}-${k}" type="range" data-k="${k}" data-i="${key}" data-pct="${isPct?1:0}"
+           min="${lo}" max="${hi}" step="${step}" value="${v}"
+           aria-label="${label} — ${storeName}" aria-valuetext="${txt}"
+           style="--fill:${((v-lo)/((hi-lo)||1)*100).toFixed(2)}%"></div>`;
+}
+
+/* ── RENDER ───────────────────────────────────────────────────────────────
+   One manager, one store, one number. There is deliberately no leaderboard,
+   no district roll-up and no regional total: a manager picks their store and
+   sees only their own estimate.
+   ─────────────────────────────────────────────────────────────────────── */
+const slug = n => String(n).replace(/[^A-Za-z0-9]/g,'');
+const byKey = k => STATE.rows.find(r => slug(r.store) === k);
+
+function renderStatus(){
+  const d = STATE.reportDate, now = new Date();
+  const rp = document.getElementById('pill-report');
+  if(d){
+    const hrs = (now - d) / 36e5;
+    rp.className = 'pill' + (hrs > CFG.STALE_HOURS ? ' stale' : '');
+    const when = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    document.getElementById('report-date').textContent = hrs > CFG.STALE_HOURS
+      ? `Report is ${Math.floor(hrs/24)} day${Math.floor(hrs/24)===1?'':'s'} old — uploaded ${when}`
+      : `Report uploaded ${when}`;
+  } else {
+    rp.className = 'pill warn';
+    document.getElementById('report-date').textContent = STATE.pinFailed
+      ? 'Report age unavailable — GitHub rate limit' : 'Report loaded';
+  }
+  const p = document.getElementById('pill-period'), basis = d || now;
+  if(STATE.frozen){
+    p.className = 'pill frozen';
+    p.innerHTML = '<span class="dot"></span>Fiscal locked &middot; close rates &amp; NPS held';
+    p.title = `The report is dated the ${basis.getDate()}th. The fiscal month runs the 22nd through the 21st, so mobile close rate, fiscal close rate, elite mobile CR and NPS read from the fiscal month that just closed — the one pay is actually calculated on.`;
+  } else {
+    p.className = 'pill live';
+    p.innerHTML = '<span class="dot"></span>Fiscal live &middot; through the 21st';
+    p.title = 'Close rates and NPS are reading the fiscal month in progress. They lock to last month’s closed figures on the 22nd.';
+  }
+  document.getElementById('foot-count').textContent = STATE.rows.length;
+  document.getElementById('foot-build').textContent = 'Built from the SM Commission Estimates workbook. Page refreshed ' + now.toLocaleString('en-US') + '.';
+  document.getElementById('notices').innerHTML = STATE.notices.map(n => `<p class="notice">${n}</p>`).join('');
+}
+
+function render(){
+  const board = document.getElementById('board');
+  const focusId = document.activeElement && document.activeElement.id;
+  board.innerHTML = STATE.selected ? storeHtml(byKey(STATE.selected)) : pickerHtml();
+  if(focusId){ const el = document.getElementById(focusId); if(el){ el.focus(); if(el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length); } }
+}
+
+function pickerHtml(){
+  const q = STATE.q.trim().toLowerCase();
+  const match = r => !q || r.store.toLowerCase().includes(q) || String(r.sm).toLowerCase().includes(q);
+  const groups = CFG.REGIONS.map(region => {
+    const list = STATE.rows.filter(r => r.region === region && match(r))
+                           .sort((a,b) => a.store.localeCompare(b.store));
+    if(!list.length) return '';
+    return `<section class="group">
+      <h3 class="micro">${esc(region)}<span class="rule"></span>${list.length} store${list.length===1?'':'s'}</h3>
+      <div class="stores">` + list.map(r => {
+        const none = /no mgr/i.test(r.sm);
+        return `<button class="storebtn ${none?'nomgr':''}" type="button" data-pick="${slug(r.store)}">
+          <span class="n">${esc(r.store)}</span>
+          <span class="m">${none ? 'No manager assigned' : esc(r.sm)}</span></button>`;
+      }).join('') + `</div></section>`;
+  }).join('');
+  say(q ? `${STATE.rows.filter(match).length} stores match.` : '');
+  return `<div class="pickwrap">
+    <div class="pickhead"><h2>Find your store</h2><span class="rule"></span></div>
+    <div class="pickfind">
+      <label class="field"><span class="visually-hidden">Search for your store or your name</span>
+        <input type="search" id="q" value="${esc(STATE.q)}" placeholder="Type your store or your name&hellip;" autocomplete="off"></label>
+    </div>
+    ${groups || `<p class="emptyfind">No store or manager matches &ldquo;${esc(STATE.q)}&rdquo;. Check the spelling, or clear the search to see all ${STATE.rows.length} stores.</p>`}
+  </div>`;
+}
+
+function storeHtml(r){
+  if(!r){ STATE.selected = null; return pickerHtml(); }
+  const cls = r.detractor ? 'detractor' : (r.nodata ? 'nodata' : '');
+  const none = /no mgr/i.test(r.sm);
+  say(`${r.store}. Estimated commission ${money(r.after)}.`);
+  return `<div class="backrow">
+      <button class="btn" type="button" id="btn-back">&larr; Choose a different store</button>
+      <span class="rule"></span>
+    </div>
+    <article class="sheet ${cls}">
+      <header class="sheethead">
+        <div><h2 class="store">${esc(r.store)}</h2>
+          <span class="sm">${none ? 'No manager assigned' : '<b>'+esc(r.sm)+'</b>'} &middot; ${esc(r.region)} &middot; District: ${esc(r.dm)}</span></div>
+        <div class="payout"><span class="amt">${money(r.after)}</span><span class="cap">Estimated commission</span></div>
+      </header>
+      ${detailHtml(r, slug(r.store))}
+    </article>`;
+}
+
+let sayTimer;
+function say(msg){ clearTimeout(sayTimer); sayTimer = setTimeout(() => { const el=document.getElementById('livestatus'); if(el) el.textContent = msg; }, 400); }
+
+function renderRules(){
+  const t = rows => '<table><tbody>' + rows.map(([a,b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('') + '</tbody></table>';
+  document.getElementById('rulesbody').innerHTML = `
+    <div class="rulecard"><h4>Base commission</h4>
+      ${t([['Net profit commission','2.5% of net GP trend'],['Over the GP goal','8% of the overage'],['Below the GP goal','$0 — never negative']])}
+      <p>Net GP trend is column M of the sales report; the amount over goal is column Q. A negative column Q pays nothing rather than subtracting.</p></div>
+    <div class="rulecard"><h4>Close rate</h4>
+      ${t([['Fiscal close rate over 9.0%','0.75% of net GP'],['9.0% or under','$0']])}
+      <p>Read from column X, or column Y once the fiscal month locks on the 22nd.</p></div>
+    <div class="rulecard"><h4>Elite mobile close rate</h4>
+      ${t([['Over 5.0%','+$100'],['Over 6.0%','+$300'],['Over 7.0%','+$200'],['Over 8.0%','+$250'],['<b>All four cleared</b>','<b>$850</b>']])}
+      <p>These stack. The payout is driven by <b>elite</b> mobile close rate — column Z, or AA once locked. Overall mobile close rate is shown for reference only and does not pay.</p></div>
+    <div class="rulecard"><h4>NPS</h4>
+      ${t([['Under 68.0%','Half of all commission is lost'],['Over 70.0%','0.35% of net GP'],['Over 75.0%','+$200'],['Over 80.0%','+$400 instead of the $200']])}
+      <p>The $200 and $400 do not stack — over 80% pays $400. The 0.35% is separate and is earned on top. The penalty applies last, to everything. Each threshold is strictly <i>over</i>: exactly 80.0% pays the $200, not the $400.</p></div>
+    <div class="rulecard"><h4>The fiscal month</h4>
+      ${t([['Fiscal month','the 22nd → the 21st'],['1st – 21st','current fiscal figures'],['22nd – month end','last fiscal month, locked']])}
+      <p>Close rates and NPS are graded on the fiscal month, so from the 22nd this page holds the closed fiscal figures — the ones pay is actually calculated on. GP always tracks the calendar month.</p></div>
+    <div class="rulecard"><h4>What this is not</h4>
+      <p>An estimate built from a mid-month report. It excludes everything payroll applies at close: final chargebacks, fall-off beyond what the report already carries, adjustments, corrections and approvals. Treat every number as directional.</p></div>`;
+}
+
+/* ── EVENTS ───────────────────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  const pick = e.target.closest('[data-pick]');
+  if(pick){ STATE.selected = pick.dataset.pick; render(); window.scrollTo({top:0, behavior:'smooth'}); touch(); return; }
+  if(e.target.closest('#btn-back')){ STATE.selected = null; STATE.q = ''; render(); window.scrollTo({top:0, behavior:'smooth'}); touch(); return; }
+  const reset = e.target.closest('[data-reset]');
+  if(reset){ restore(reset.dataset.reset); touch(); return; }
+  if(e.target.closest('#btn-refresh') || e.target.closest('#btn-retry')) load();
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if(el.type === 'range' && el.dataset.k != null){ recompute(el.dataset.i); touch(); return; }
+  if(el.id === 'q'){ STATE.q = el.value; render(); touch(); }
+});
+
+function paint(el, v, isPct){
+  const lo = parseFloat(el.min), hi = parseFloat(el.max);
+  el.style.setProperty('--fill', (((v-lo)/((hi-lo)||1))*100).toFixed(2) + '%');
+  el.setAttribute('aria-valuetext', isPct ? pct1(v) : money0(v));
+}
+
+/* Put a panel back to exactly today's figures. Range inputs quantise to their
+   step, so re-deriving from the sliders would drift a cent or two off the
+   headline; the resting state must match the figure above it exactly. */
+function restore(key){
+  const r = byKey(key), panel = document.querySelector(`.whatif[data-store="${key}"]`);
+  if(!r || !panel) return;
+  panel.querySelectorAll('input[type=range]').forEach(el => {
+    const k = el.dataset.k, v = r[k] == null ? 0 : r[k], isPct = el.dataset.pct === '1';
+    el.value = v; paint(el, v, isPct);
+    const lbl = panel.querySelector(`[data-lbl="${key}-${k}"]`);
+    if(lbl) lbl.textContent = isPct ? pct1(r[k]) : money0(v);
+  });
+  panel.querySelector(`[data-out="${key}"]`).textContent = money(r.after);
+  const d = panel.querySelector(`[data-delta="${key}"]`);
+  d.className = 'delta flat'; d.textContent = 'no change';
+}
+
+function recompute(key){
+  const base = byKey(key), panel = document.querySelector(`.whatif[data-store="${key}"]`);
+  if(!base || !panel) return;
+  const inp = {gpTrend:base.gpTrend, varTarget:base.varTarget, fcr:base.fcr, elite:base.elite, nps:base.nps};
+  panel.querySelectorAll('input[type=range]').forEach(el => {
+    const k = el.dataset.k, isPct = el.dataset.pct === '1', v = parseFloat(el.value);
+    if(isFinite(v)) inp[k] = v;
+    paint(el, v, isPct);
+    const lbl = panel.querySelector(`[data-lbl="${key}-${k}"]`);
+    if(lbl) lbl.textContent = isPct ? pct1(v) : money0(v);
+  });
+  const res = estimate(inp), diff = res.after - base.after;
+  panel.querySelector(`[data-out="${key}"]`).textContent = money(res.after);
+  const d = panel.querySelector(`[data-delta="${key}"]`);
+  d.className = 'delta ' + (Math.abs(diff) < 0.005 ? 'flat' : (diff > 0 ? 'up' : 'down'));
+  d.textContent = Math.abs(diff) < 0.005 ? 'no change'
+    : (diff > 0 ? '+' : MINUS) + '$' + Math.abs(Math.round(diff)).toLocaleString('en-US') + ' vs today';
+}
+
+/* On a screen several people share, one manager's figures must not sit there
+   waiting for the next person. Go back to the picker after a few idle minutes. */
+let idle;
+function touch(){
+  clearTimeout(idle);
+  idle = setTimeout(() => {
+    if(STATE.selected){ STATE.selected = null; STATE.q = ''; render(); }
+  }, CFG.IDLE_MS);
+}
+['click','keydown','pointerdown','wheel'].forEach(ev => document.addEventListener(ev, touch, {passive:true}));
+
+/* A wall screen stays up for months: re-pull on a timer and whenever the tab
+   comes back, so the fiscal basis and the report can never go stale on it. */
+load();
+setInterval(load, CFG.REFRESH_MS);
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && STATE.rows.length){
+    if(STATE.frozen !== isFrozen(STATE.reportDate || new Date())) load();
+  }
+});
+</script>
+</body>
+</html>
