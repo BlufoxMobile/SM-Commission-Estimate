@@ -131,7 +131,7 @@ h1.title{
   border:1px solid var(--line-soft); border-radius:var(--r-pill);
   background:var(--glass); font-size:var(--t--2); letter-spacing:var(--track-caps);
   text-transform:uppercase; font-variation-settings:"wdth" 90; font-weight:600;
-  color:var(--fg-muted); min-height:38px;
+  color:var(--fg-muted); min-height:44px;
 }
 .pill .dot{width:6px; height:6px; border-radius:50%; background:var(--sage); box-shadow:0 0 8px var(--sage); flex:none}
 .pill.frozen{border-color:color-mix(in oklab,var(--sage) 45%,transparent); color:var(--sage)}
@@ -147,24 +147,31 @@ button.pill:hover,button.pill:focus-visible{border-color:var(--brass); color:var
 
 /* ── DISCLAIMER ───────────────────────────────────────────────────────── */
 .disclaimer{
-  margin:var(--sp-5) 0 0; padding:var(--sp-4) var(--sp-5);
+  margin:var(--sp-5) 0 0;
   border:1px solid color-mix(in oklab,var(--amber) 34%,transparent);
   border-left:3px solid var(--amber); border-radius:var(--r-md);
   background:linear-gradient(90deg,color-mix(in oklab,var(--amber) 10%,transparent),transparent 70%);
-  display:flex; gap:var(--sp-4); align-items:flex-start;
 }
+.disclaimer > summary{
+  display:flex; gap:var(--sp-3); align-items:center; cursor:pointer; list-style:none;
+  padding:var(--sp-3) var(--sp-4); min-height:52px;
+}
+.disclaimer > summary::-webkit-details-marker{display:none}
 .disclaimer .mark{
   font-family:"Bodoni Moda",serif; font-variation-settings:"opsz" 20; font-weight:700;
-  font-size:1.55rem; line-height:1; color:var(--amber); flex:none;
+  font-size:1.3rem; line-height:1; color:var(--amber); flex:none;
   border:2px solid color-mix(in oklab,var(--amber) 60%,transparent); border-radius:2px;
-  width:2.1rem; height:2.1rem; display:grid; place-items:center;
+  width:1.9rem; height:1.9rem; display:grid; place-items:center;
 }
-.disclaimer > div{max-width:74ch}
 .disclaimer strong{
-  display:block; color:var(--amber); letter-spacing:var(--track-caps); text-transform:uppercase;
-  font-size:var(--t--2); font-weight:700; font-variation-settings:"wdth" 90; margin-bottom:.35rem;
+  color:var(--amber); letter-spacing:var(--track-caps); text-transform:uppercase;
+  font-size:var(--t--2); font-weight:700; font-variation-settings:"wdth" 90; line-height:1.3;
 }
-.disclaimer p{margin:0; font-size:var(--t--1); color:var(--bone-2); line-height:1.55}
+.disclaimer .more{margin-left:auto; flex:none; color:var(--amber); font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; font-weight:600; opacity:.8}
+.disclaimer .more::after{content:"What this means +"}
+.disclaimer[open] .more::after{content:"Close \2013"}
+.disclaimer p{margin:0; padding:0 var(--sp-4) var(--sp-4) calc(1.9rem + var(--sp-3) + var(--sp-4)); max-width:78ch; font-size:var(--t--1); color:var(--bone-2); line-height:1.55}
+@media (max-width:560px){ .disclaimer p{padding-left:var(--sp-4)} .disclaimer .more::after{content:"+"} .disclaimer[open] .more::after{content:"\2013"} }
 
 /* ── STORE PICKER ────────────────────────────────────────────────────── */
 .pickwrap{margin-top:var(--sp-6)}
@@ -291,7 +298,7 @@ input[type=range]::-moz-range-thumb{width:14px; height:20px; border-radius:2px; 
 .whatif .out .v{font-size:var(--t-1); font-weight:700; color:var(--brass-300); font-variant-numeric:tabular-nums lining-nums}
 .whatif .delta{font-size:var(--t--2); font-variant-numeric:tabular-nums lining-nums; margin-top:.15rem}
 .delta.up{color:var(--sage)} .delta.down{color:var(--alert)} .delta.flat{color:var(--fg-dim)}
-.btn{display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; border:1px solid var(--line-soft); background:transparent; border-radius:var(--r-pill); padding:.4rem .9rem; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; font-weight:600; color:var(--fg-muted); min-height:40px; transition:border-color var(--dur-2), color var(--dur-2)}
+.btn{display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; border:1px solid var(--line-soft); background:transparent; border-radius:var(--r-pill); padding:.4rem .9rem; font-size:var(--t--2); letter-spacing:var(--track-caps); text-transform:uppercase; font-weight:600; color:var(--fg-muted); min-height:44px; transition:border-color var(--dur-2), color var(--dur-2)}
 .btn:hover,.btn:focus-visible{border-color:var(--brass); color:var(--brass-300)}
 
 /* ── RULES + FOOTER ───────────────────────────────────────────────────── */
@@ -330,6 +337,18 @@ footer.foot strong{color:var(--amber)}
   select{width:100%}
   input[type="search"]{flex:1 1 100%; min-width:0; width:100%}
   .seg{width:100%; justify-content:center}
+}
+@media (max-width:820px){
+  body.picked h1.title{font-size:1.6rem; line-height:1.1}
+  body.picked .subtitle{display:none}
+  body.picked header.masthead{padding:var(--sp-4) 0 var(--sp-3)}
+  body.picked .statusrow{margin-top:var(--sp-3); gap:var(--sp-2)}
+  body.picked .pill{font-size:.66rem; padding:.35rem .6rem; min-height:34px}
+  body.picked button.pill{min-height:44px}   /* status pills may shrink; a tap target may not */
+  body.picked .disclaimer{margin-top:var(--sp-3)}
+  body.picked .disclaimer > summary{min-height:44px; padding:var(--sp-2) var(--sp-3)}
+  .whatif .out{grid-template-columns:1fr; gap:var(--sp-3)}
+  .whatif .out .btn{width:100%; justify-content:center}
 }
 @media (max-width:520px){
   .sheethead{padding:var(--sp-4)}
@@ -374,13 +393,10 @@ footer.foot strong{color:var(--amber)}
     </div>
   </header>
 
-  <div class="disclaimer" role="note">
-    <span class="mark" aria-hidden="true">!</span>
-    <div>
-      <strong>Estimate only &mdash; not a guarantee of pay</strong>
-      <p>These numbers are a planning tool built from a mid-month sales report. They are not payroll, they are not approved, and they are not a promise. Actual commission is determined by finalized month-end results, chargebacks and fall-off, and official Blufox payroll calculations &mdash; which will differ from what you see here. Never make a financial decision on this page.</p>
-    </div>
-  </div>
+  <details class="disclaimer" id="disc">
+    <summary><span class="mark" aria-hidden="true">!</span><strong>Estimate only &mdash; not a guarantee of pay</strong><span class="more"></span></summary>
+    <p>These numbers are a planning tool built from a mid-month sales report. They are not payroll, they are not approved, and they are not a promise. Actual commission is determined by finalized month-end results, chargebacks and fall-off, and official Blufox payroll calculations &mdash; which will differ from what you see here. Never make a financial decision on this page.</p>
+  </details>
 
   <div id="notices"></div>
   <p class="visually-hidden" id="livestatus" role="status" aria-live="polite"></p>
@@ -424,7 +440,7 @@ const CFG = {
   OWNER:'BlufoxMobile', REPO:'Daily-Sales-Report', PATH:'data/Sales Report.xlsx',
   SHEET:'Store Rank', HEADER_ROW:6, REGIONS:['Greater Chicago','Big South'],
   RATE_GP:0.025, RATE_EXCESS:0.08, RATE_CR:0.0075, RATE_NPS:0.0035,
-  CR_GOAL:0.09, NPS_PCT_GATE:0.70, NPS_DETRACTOR:0.68,
+  CR_GOAL:0.1025, GP_FLOOR:50000, NPS_PCT_GATE:0.70, NPS_DETRACTOR:0.68,
   NPS_BONUS:[[0.80,400],[0.75,200]],                            // exclusive, highest first
   ELITE_TIERS:[[0.05,100],[0.06,300],[0.07,200],[0.08,250]],    // cumulative
   FREEZE_DAY:22, TIMEOUT_MS:15000, REFRESH_MS:15*60*1000, STALE_HOURS:30, IDLE_MS:4*60*1000
@@ -489,9 +505,13 @@ function estimate(inp){
   const excess = Math.max(0, num(inp.varTarget));                       // change 1
   const fcr = inp.fcr, elite = inp.elite, nps = inp.nps;                // null = unreported
 
+  /* The 8% over-goal bonus is gated on the store clearing $50,000 net GP for
+     the month. One dollar under and the whole bonus is lost — a cliff, not a
+     taper, so it is checked before the line is ever computed. */
+  const gpCleared = gp >= CFG.GP_FLOOR;
   const lines = {
     gp:      roundUp(gp * CFG.RATE_GP),
-    excess:  roundUp(excess * CFG.RATE_EXCESS),
+    excess:  gpCleared ? roundUp(excess * CFG.RATE_EXCESS) : 0,
     cr:      (fcr != null && fcr > CFG.CR_GOAL)      ? roundUp(gp * CFG.RATE_CR)  : 0,
     npsPct:  (nps != null && nps > CFG.NPS_PCT_GATE) ? roundUp(gp * CFG.RATE_NPS) : 0,
     npsFlat: 0, elite: 0
@@ -507,7 +527,7 @@ function estimate(inp){
 
   const detractor = (nps != null && nps < CFG.NPS_DETRACTOR);           // change 2
   const penalty   = detractor ? -(before / 2) : 0;
-  return { lines, before, rawBefore, penalty, detractor, floored, after: before + penalty };
+  return { lines, before, rawBefore, penalty, detractor, floored, gpCleared, after: before + penalty };
 }
 
 /* Worth is measured by RE-RUNNING the estimate with the metric nudged over
@@ -531,11 +551,14 @@ function opportunities(s){
     }
   }
   if(s.fcr != null && s.fcr <= CFG.CR_GOAL)
-    out.push({ gap:`Fiscal close rate over ${pct(CFG.CR_GOAL)} (now ${pct(s.fcr)})`, worth: test({fcr: CFG.CR_GOAL + EPS}) });
+    out.push({ gap:`Fiscal close rate over ${gate(CFG.CR_GOAL)} (now ${pct(s.fcr)})`, worth: test({fcr: CFG.CR_GOAL + EPS}) });
   if(s.elite != null){
     const t = CFG.ELITE_TIERS.find(([g]) => s.elite <= g);
     if(t) out.push({ gap:`Elite mobile CR over ${pct(t[0])} (now ${pct(s.elite)})`, worth: test({elite: t[0] + EPS}) });
   }
+  if(!s.gpCleared && num(s.varTarget) > 0)
+    out.push({ gap:`Clear ${money0(CFG.GP_FLOOR)} net GP (now ${money0(s.gpTrend)}) to unlock the 8% over-goal bonus`,
+               worth: test({gpTrend: CFG.GP_FLOOR}) });
   if(num(s.varTarget) <= 0)
     out.push({ gap:`Reach the GP goal &mdash; ${money0(Math.abs(num(s.varTarget)))} short today`, worth:null });
 
@@ -547,6 +570,7 @@ const MINUS = '−';
 const money = n => (n < 0 ? MINUS : '') + '$' + Math.abs(Math.round(n * 100) / 100).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
 const money0 = n => (n < 0 ? MINUS : '') + '$' + Math.abs(Math.round(n)).toLocaleString('en-US');
 const pct1 = v => v == null ? '—' : (v * 100).toFixed(1) + '%';
+const gate = v => (v * 100).toFixed(v * 100 % 1 ? 2 : 1) + '%';   // 10.25% keeps its cents, 70% does not
 const esc  = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ── STATE ────────────────────────────────────────────────────────────── */
@@ -663,8 +687,10 @@ function detailHtml(r, key){
   const under = num(r.varTarget) < 0;
 
   const metrics = [
-    ['Net GP trend', money0(r.gpTrend), 'col M', r.gpTrend < 0 ? 'bad' : ''],
-    [under ? 'Under GP goal' : 'Over GP goal', money0(r.varTarget), 'col Q', under ? 'bad' : 'good'],
+    ['Net GP trend', money0(r.gpTrend), r.gpCleared ? 'col M &middot; over the ' + money0(CFG.GP_FLOOR) + ' floor' : `col M &middot; ${money0(CFG.GP_FLOOR - r.gpTrend)} under the floor`, r.gpCleared ? 'good' : 'bad'],
+    [under ? 'Under GP goal' : 'Over GP goal', money0(r.varTarget),
+      under ? 'col Q' : (r.gpCleared ? 'col Q' : `col Q &middot; locked by the ${money0(CFG.GP_FLOOR)} floor`),
+      under ? 'bad' : (r.gpCleared ? 'good' : 'nodata')],
     ['Elite mobile CR', pct1(r.elite), src.elite + ' &middot; this is what pays', r.elite == null ? 'nodata' : (r.elite > 0.05 ? 'good' : 'bad')],
     ['Mobile CR', pct1(r.mcr), src.mcr + ' &middot; reference only', r.mcr == null ? 'nodata' : ''],
     ['Fiscal close rate', pct1(r.fcr), src.fcr, r.fcr == null ? 'nodata' : (r.fcr > CFG.CR_GOAL ? 'good' : 'bad')],
@@ -681,8 +707,8 @@ function detailHtml(r, key){
      they answer the only two questions a manager actually has. */
   const earned = [
     ['Net profit commission', r.lines.gp],
-    [under ? null : 'Over-goal bonus', r.lines.excess],
-    [r.fcr != null && r.fcr > CFG.CR_GOAL ? 'Close rate over 9.0%' : null, r.lines.cr],
+    [under || !r.gpCleared ? null : 'Over-goal bonus', r.lines.excess],
+    [r.fcr != null && r.fcr > CFG.CR_GOAL ? `Close rate over ${gate(CFG.CR_GOAL)}` : null, r.lines.cr],
     [r.nps != null && r.nps > CFG.NPS_PCT_GATE ? 'NPS over 70.0%' : null, r.lines.npsPct],
     [r.lines.npsFlat ? `NPS over ${r.lines.npsFlat === 400 ? '80.0' : '75.0'}%` : null, r.lines.npsFlat],
     [r.lines.elite ? 'Elite mobile CR tiers' : null, r.lines.elite]
@@ -706,9 +732,12 @@ function detailHtml(r, key){
             ${line('Net profit commission', '2.5% of ' + money0(r.gpTrend) + ' net GP trend', r.lines.gp)}
             ${line('Over-goal bonus', under
                 ? money0(Math.abs(r.varTarget)) + ' below the GP goal — pays nothing until positive'
-                : '8% of ' + money0(r.varTarget) + ' above the GP goal', r.lines.excess, met(!under))}
+                : (!r.gpCleared
+                    ? `Locked: the store must clear ${money0(CFG.GP_FLOOR)} net GP for the month and is at ` + money0(r.gpTrend) + ` — ${money0(CFG.GP_FLOOR - r.gpTrend)} short. Being ${money0(r.varTarget)} over target pays nothing until that is cleared.`
+                    : '8% of ' + money0(r.varTarget) + ' above the GP goal, <b>paid only on business that clears</b> — anything that falls off reduces this'),
+                r.lines.excess, under ? met(false) : (r.gpCleared ? met(true) : `<span class="state cut">locked</span>`))}
             ${line('Close rate bonus', r.fcr == null ? 'Fiscal close rate was not reported'
-                : '0.75% of net GP if fiscal close rate beats 9.0% — now ' + pct1(r.fcr),
+                : `0.75% of net GP if fiscal close rate beats ${gate(CFG.CR_GOAL)} — now ` + pct1(r.fcr),
                 r.lines.cr, r.fcr == null ? nod : met(r.fcr > CFG.CR_GOAL))}
             ${line('NPS percentage bonus', r.nps == null ? 'NPS was not reported'
                 : '0.35% of net GP if NPS beats 70.0% — now ' + pct1(r.nps),
@@ -810,6 +839,7 @@ function renderStatus(){
 function render(){
   const board = document.getElementById('board');
   const focusId = document.activeElement && document.activeElement.id;
+  document.body.classList.toggle('picked', !!STATE.selected);
   board.innerHTML = STATE.selected ? storeHtml(byKey(STATE.selected)) : pickerHtml();
   if(focusId){ const el = document.getElementById(focusId); if(el){ el.focus(); if(el.setSelectionRange && el.value) el.setSelectionRange(el.value.length, el.value.length); } }
 }
@@ -867,10 +897,12 @@ function renderRules(){
   const t = rows => '<table><tbody>' + rows.map(([a,b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('') + '</tbody></table>';
   document.getElementById('rulesbody').innerHTML = `
     <div class="rulecard"><h4>Base commission</h4>
-      ${t([['Net profit commission','2.5% of net GP trend'],['Over the GP goal','8% of the overage'],['Below the GP goal','$0 — never negative']])}
-      <p>Net GP trend is column M of the sales report; the amount over goal is column Q. A negative column Q pays nothing rather than subtracting.</p></div>
+      ${t([['Net profit commission','2.5% of net GP trend'],[`Store clears ${money0(CFG.GP_FLOOR)} net GP`,'8% of the overage'],[`Store under ${money0(CFG.GP_FLOOR)}`,'$0 — no over-goal bonus'],['Below the GP goal','$0 — never negative']])}
+      <p>Net GP trend is column M of the sales report; the amount over goal is column Q. A negative column Q pays nothing rather than subtracting.</p>
+      <p><b>The store must clear ${money0(CFG.GP_FLOOR)} in net GP for the month before the 8% pays at all.</b> One dollar under and the over-goal bonus is $0, no matter how far over target the store is. It is a cliff, not a sliding scale.</p>
+      <p><b>The over-goal money also has to clear.</b> The 8% is earned only if the business entered in the system actually pays out. Anything that falls off, charges back or cancels comes out of this figure, so it is the least certain line on the page.</p></div>
     <div class="rulecard"><h4>Close rate</h4>
-      ${t([['Fiscal close rate over 9.0%','0.75% of net GP'],['9.0% or under','$0']])}
+      ${t([[`Fiscal close rate over ${gate(CFG.CR_GOAL)}`,'0.75% of net GP'],[`${gate(CFG.CR_GOAL)} or under`,'$0']])}
       <p>Read from column X, or column Y once the fiscal month locks on the 22nd.</p></div>
     <div class="rulecard"><h4>Elite mobile close rate</h4>
       ${t([['Over 5.0%','+$100'],['Over 6.0%','+$300'],['Over 7.0%','+$200'],['Over 8.0%','+$250'],['<b>All four cleared</b>','<b>$850</b>']])}
@@ -955,6 +987,11 @@ function touch(){
 
 /* A wall screen stays up for months: re-pull on a timer and whenever the tab
    comes back, so the fiscal basis and the report can never go stale on it. */
+/* Expanded on a screen with room for it; folded on a phone so the manager's
+   own figure is above the fold. The warning line itself never hides. */
+(function(){ const d = document.getElementById('disc');
+  if(d && window.matchMedia('(min-width: 821px)').matches) d.open = true; })();
+
 load();
 setInterval(load, CFG.REFRESH_MS);
 document.addEventListener('visibilitychange', () => {
